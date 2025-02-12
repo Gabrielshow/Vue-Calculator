@@ -1,12 +1,12 @@
 <template>
-    <div class="px-2" style="max-width: 400px; margin: 40px auto; background: #234">
-        <div class="w-full rounded-sm mt-1 mb-1 px-2 text-right font-bold text-white">
+    <div class="px-2 rounded-sm px-2 py-2" style="max-width: 400px; margin: 40px auto; background: #234">
+        <div class="w-full rounded-sm mt-2 mb-2 px-2 text-right font-bold text-white">
             {{ calculatorValue || 0 }}
         </div>
 
-        <div class="row">
-            <div class="col-3" v-for="n in calculatorElements" :key="n">
-                <div class="text-white text-center mt-2 mb-2 py-3 bg-vue-dark rounded-md hover:bg-vue-hover"
+        <div class="grid grid-cols-4 gap-1">
+            <div v-for="n in calculatorElements" :key="n">
+                <div class="text-white text-center mt-1 py-3 bg-vue-dark rounded-md hover:bg-vue-hover"
                     :class="{ 'bg-vue-green': ['C', '*', '/', '-', '%', '='].includes(n) }" @click="action(n)">
                     {{ n }}
                 </div>
@@ -36,6 +36,8 @@ function action(n) {
     // If the button is 'C', clear the calculator value
     if (n === 'C') {
         calculatorValue.value = ''
+        operator.value = null
+        previousCalculatorValue.value = ''
     }
 
     // If the button is '%', convert the value to percentage
@@ -45,15 +47,19 @@ function action(n) {
 
     // If the button is an operator, save it and the current value for the next step
     if (['/', '*', '-', '+'].includes(n)) {
-        operator.value = n
-        previousCalculatorValue.value = calculatorValue.value
-        calculatorValue.value = ''
+        if (calculatorValue.value) {
+            operator.value = n
+            previousCalculatorValue.value = calculatorValue.value
+            calculatorValue.value = ''
+        }
     }
 
     // If the button is '=', evaluate the expression
     if (n === '=') {
-        if (previousCalculatorValue.value && operator.value !== null) {
+        if (previousCalculatorValue.value && operator.value !== null && calculatorValue.value) {
             calculatorValue.value = calculate(previousCalculatorValue.value, operator.value, calculatorValue.value)
+            operator.value = null // Reset operator after calculation
+            previousCalculatorValue.value = '' // Reset previous value after calculation
         }
     }
 }
